@@ -20,7 +20,7 @@ fi
 
 # Run luacheck on all Lua files
 echo "Running luacheck on addon files..."
-"$LUACHECK_CMD" src/*.lua --config .luacheckrc
+"$LUACHECK_CMD" src/*.lua src/providers/*.lua src/db/*.lua --config .luacheckrc
 
 # Capture the exit code of the luacheck command
 EXIT_CODE=$?

@@ -34,17 +34,17 @@ local checkpvp = {
         elseif projectID == 1 then return "check-pvp.fr"
         else return "check-pvp.fr" end
     end,
-    
+
     -- Generate Check-PvP URL for a player
     getURL = function(name, realm, regionCode, regionId)
         if not name or not realm then return nil end
-        
+
         -- Get version-appropriate base URL
         local baseURL = GetCheckPvPBaseURL()
-        
+
         -- Get English realm slug
         local englishRealm = ns.region.GetRealmSlug(realm)
-        
+
         -- Debug output to help troubleshoot
         local guid = UnitGUID("player")
         local serverId = tonumber(string.match(guid or "", "^Player%-(%d+)") or 0) or 0
@@ -52,14 +52,14 @@ local checkpvp = {
             "Check-PvP URL generation - GUID =", guid, "ServerId =", serverId, "RegionId =", regionId,
             "RegionCode =", regionCode, "Realm =", realm, "Name =", name, "BaseURL =", baseURL
         )
-        
+
         ns.utils.DebugPrint("Realm translation:", realm, "->", englishRealm)
         ns.utils.DebugPrint("Final URL components: region =", regionCode, "realm =", englishRealm, "name =", name)
-        
+
         -- Construct Check-PvP URL: https://check-pvp.fr/[region]/[realm]/[name]
         return string.format("%s/%s/%s/%s", baseURL, regionCode, englishRealm, name)
     end
 }
 
 -- Register the provider
-ns.providers.RegisterProvider(checkpvp) 
+ns.providers.RegisterProvider(checkpvp)

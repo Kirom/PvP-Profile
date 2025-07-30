@@ -24,22 +24,22 @@ function ns.providers.RegisterProvider(provider)
         error("Provider must have an 'id' field")
         return
     end
-    
+
     if not provider.name then
         error("Provider must have a 'name' field")
         return
     end
-    
+
     if not provider.getURL or type(provider.getURL) ~= "function" then
         error("Provider must have a 'getURL' function")
         return
     end
-    
+
     if provider.supportsClassic == nil then
         error("Provider must have a 'supportsClassic' field (boolean)")
         return
     end
-    
+
     registeredProviders[provider.id] = provider
     local classicSupport = provider.supportsClassic and "retail+classic" or "retail only"
     ns.utils.DebugPrint("Registered provider:", provider.id, "(" .. provider.name .. ") -", classicSupport)
@@ -58,7 +58,7 @@ end
 function ns.providers.GetAllProviders()
     local compatibleProviders = {}
     local isClassic = IsClassicWoW()
-    
+
     for providerId, provider in pairs(registeredProviders) do
         -- Include provider if it supports current WoW version
         if not isClassic or provider.supportsClassic then
@@ -67,7 +67,7 @@ function ns.providers.GetAllProviders()
             ns.utils.DebugPrint("Filtering out provider", provider.name, "- not compatible with classic")
         end
     end
-    
+
     return compatibleProviders
 end
 
@@ -80,12 +80,12 @@ end
 function ns.providers.GetEnabledProviders()
     local enabledProviders = {}
     local isClassic = IsClassicWoW()
-    
+
     for providerId, provider in pairs(registeredProviders) do
         -- Check both WoW version compatibility AND user enabled setting
         local isCompatible = not isClassic or provider.supportsClassic
         local isUserEnabled = ns.IsWebsiteEnabled(providerId)
-        
+
         if isCompatible and isUserEnabled then
             enabledProviders[providerId] = provider
             ns.utils.DebugPrint("Provider", provider.name, "enabled and compatible")
@@ -100,10 +100,10 @@ end
 -- Generate URLs for all enabled providers
 function ns.providers.GenerateURLs(name, realm)
     if not name or not realm then return {} end
-    
+
     local urls = {}
     local regionCode, regionId = ns.region.GetRegion()
-    
+
     for providerId, provider in pairs(ns.providers.GetEnabledProviders()) do
         local success, result = pcall(provider.getURL, name, realm, regionCode, regionId)
         if success and result then
@@ -116,7 +116,7 @@ function ns.providers.GenerateURLs(name, realm)
             ns.utils.DebugPrint("Failed to generate URL for", provider.name, "- Error:", result or "unknown")
         end
     end
-    
+
     return urls
 end
 
@@ -127,4 +127,4 @@ function ns.providers.GetMenuText(providerId)
         return provider.name
     end
     return "Unknown Provider"
-end 
+end
