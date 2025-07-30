@@ -6,14 +6,14 @@
 
 <div align="center">
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/Kirom/PvPProfile)](https://github.com/Kirom/PvPProfile/releases/latest)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Kirom/PvPProfile/release.yml?&label=Build)](https://github.com/Kirom/PvPProfile/actions)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/Kirom/PvP-Profile)](https://github.com/Kirom/PvP-Profile/releases/latest)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Kirom/PvP-Profile/release.yml?&label=Build)](https://github.com/Kirom/PvP-Profile/actions)
 [![CurseForge](https://img.shields.io/badge/CurseForge-Download-orange?&logo=curseforge)](https://www.curseforge.com/wow/addons/pvp-profile)
 [![Wago](https://img.shields.io/badge/Wago-Install-blue?)](https://addons.wago.io/addons/pvp-profile)
 
 [![World of Warcraft](https://img.shields.io/badge/World%20of%20Warcraft-The%20War%20Within%20%7C%20MoP%20Classic-0084ff?&logo=battle.net)](https://worldofwarcraft.com)
 [![Interface Version](https://img.shields.io/badge/Game%20Version-11.1.7%20|%205.5.0-brightgreen)](https://github.com/Kirom/PvPProfile)
-[![GitHub issues](https://img.shields.io/github/issues/Kirom/PvPProfile)](https://github.com/Kirom/PvPProfile/issues)
+[![GitHub issues](https://img.shields.io/github/issues/Kirom/PvP-Profile)](https://github.com/Kirom/PvP-Profile/issues)
 
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289DA?logo=discord)](http://discord.gg/)
 
