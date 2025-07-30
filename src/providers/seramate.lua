@@ -28,21 +28,12 @@ local seramate = {
 
         ns.utils.DebugPrint("Realm translation:", realm, "->", englishRealm)
 
-        -- Transform realm for Seramate format (lowercase, no spaces/hyphens)
-        local seramateRealm = englishRealm:lower():gsub("[%s%-]", "")
-        local seramateName = name:lower()
-        local seramateRegion = regionCode:lower()
-
-        ns.utils.DebugPrint(
-            "Final URL components: region =", seramateRegion, "realm =", seramateRealm, "name =", seramateName
-        )
-
         -- Seramate URL format: https://seramate.com/[REGION]/[REALM]/[NAME]
         return string.format("https://%s/%s/%s/%s",
             self.baseURL,
-            seramateRegion,
-            seramateRealm,
-            seramateName
+            regionCode,
+            englishRealm,
+            name
         )
     end
 }

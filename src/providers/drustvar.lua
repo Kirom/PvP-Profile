@@ -28,21 +28,12 @@ local drustvar = {
 
         ns.utils.DebugPrint("Realm translation:", realm, "->", englishRealm)
 
-        -- Transform realm for Drustvar format (lowercase, no spaces/hyphens)
-        local drustvarRealm = englishRealm:lower():gsub("[%s%-]", "")
-        local drustvarName = name:lower()
-        local drustvarRegion = regionCode:lower()
-
-        ns.utils.DebugPrint(
-            "Final URL components: region =", drustvarRegion, "realm =", drustvarRealm, "name =", drustvarName
-        )
-
         -- Drustvar URL format: https://drustvar.com/character/[REGION]/[REALM]/[NAME]
         return string.format("https://%s/character/%s/%s/%s",
             self.baseURL,
-            drustvarRegion,
-            drustvarRealm,
-            drustvarName
+            regionCode,
+            englishRealm,
+            name
         )
     end
 }
