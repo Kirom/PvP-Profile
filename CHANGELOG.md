@@ -21,7 +21,6 @@ All notable changes to PvP Profile will be documented in this file.
 - **UI Improvements**: Added "PvP Profile" title to context menus for better organization
 - **Enhanced Context Menus**: Individual buttons for each enabled provider always show URLs
 - **Optional Name-Realm**: Added configurable "Name-Realm" button for manual searching
-- **Updated Slash Commands**: Replaced copy mode commands with `/pvpprofile namerealm` toggle
 - Auto-close dialog functionality
 - Extensive slash command interface
 - Cross-realm and multi-region support
