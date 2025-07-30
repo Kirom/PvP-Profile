@@ -7,9 +7,7 @@ ns.commands = {}
 local function ShowHelp()
     print("|cff00ff00PvP Profile|r - Available commands:")
     print("/pvpprofile or /pvp - Show this help")
-    print("/pvpprofile usename - Switch to name-realm copy mode")
-    print("/pvpprofile useurl - Switch to URL copy mode")
-    print("/pvpprofile mode - Show current copy mode")
+    print("/pvpprofile namerealm - Toggle name-realm button in context menus")
     print("/pvpprofile autoclose - Toggle auto-close dialog")
     print("/pvpprofile debug - Toggle debug output")
     print("/pvpprofile options - Open options panel")
@@ -25,16 +23,11 @@ local function HandleSlashCommand(msg)
 
     if command == "" or command == "help" then
         ShowHelp()
-    elseif command == "usename" then
-        ns.SetConfig("COPY_MODE", "name")
-        print("|cff00ff00PvP Profile:|r Copy mode set to name-realm")
-    elseif command == "useurl" then
-        ns.SetConfig("COPY_MODE", "url")
-        print("|cff00ff00PvP Profile:|r Copy mode set to full URL")
-    elseif command == "mode" then
-        local mode = ns.config.COPY_MODE
-        local modeText = mode == "url" and "Full URL" or "Name-Realm"
-        print("|cff00ff00PvP Profile:|r Current copy mode:", modeText)
+    elseif command == "namerealm" then
+        local newValue = not ns.config.SHOW_NAME_REALM
+        ns.SetConfig("SHOW_NAME_REALM", newValue)
+        local statusText = newValue and "enabled" or "disabled"
+        print("|cff00ff00PvP Profile:|r Name-Realm button", statusText)
     elseif command == "autoclose" then
         local newValue = not ns.config.AUTO_CLOSE_DIALOG
         ns.SetConfig("AUTO_CLOSE_DIALOG", newValue)

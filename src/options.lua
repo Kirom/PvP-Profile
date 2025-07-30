@@ -22,42 +22,14 @@ local function CreateOptionsPanel()
 
     local yOffset = -50
 
-    -- Copy Mode Section
-    local copyModeLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    copyModeLabel:SetPoint("TOPLEFT", panel, "TOPLEFT", PADDING, yOffset)
-    copyModeLabel:SetText("Copy Mode")
-
-    yOffset = yOffset - 25
-
-    -- Copy Mode Dropdown
-    local copyModeDropdown = CreateFrame("Frame", "PvPProfileCopyModeDropdown", panel, "UIDropDownMenuTemplate")
-    copyModeDropdown:SetPoint("TOPLEFT", panel, "TOPLEFT", PADDING - 15, yOffset)
-    UIDropDownMenu_SetWidth(copyModeDropdown, 200)
-    UIDropDownMenu_SetText(copyModeDropdown, "")
-
-    -- Dropdown initialization function
-    UIDropDownMenu_Initialize(copyModeDropdown, function()
-        -- Full URL option
-        local info1 = UIDropDownMenu_CreateInfo()
-        info1.text = "Full URL"
-        info1.value = "url"
-        info1.func = function()
-            ns.SetConfig("COPY_MODE", "url")
-            UIDropDownMenu_SetSelectedValue(copyModeDropdown, "url")
-        end
-        info1.checked = (ns.config.COPY_MODE == "url")
-        UIDropDownMenu_AddButton(info1)
-
-        -- Name-realm option
-        local info2 = UIDropDownMenu_CreateInfo()
-        info2.text = "Name-Realm"
-        info2.value = "name"
-        info2.func = function()
-            ns.SetConfig("COPY_MODE", "name")
-            UIDropDownMenu_SetSelectedValue(copyModeDropdown, "name")
-        end
-        info2.checked = (ns.config.COPY_MODE == "name")
-        UIDropDownMenu_AddButton(info2)
+    -- Name-Realm option checkbox
+    local nameRealmCheck = CreateFrame(
+        "CheckButton", "PvPProfileNameRealmCheck", panel, "InterfaceOptionsCheckButtonTemplate"
+    )
+    nameRealmCheck:SetPoint("TOPLEFT", panel, "TOPLEFT", PADDING, yOffset)
+    nameRealmCheck.Text:SetText("Show Name-Realm button in context menus")
+    nameRealmCheck:SetScript("OnClick", function(self)
+        ns.SetConfig("SHOW_NAME_REALM", self:GetChecked())
     end)
 
     yOffset = yOffset - 50
@@ -95,21 +67,15 @@ local function CreateOptionsPanel()
 
     -- Store controls for easy access
     panel.controls = {
-        copyModeDropdown = copyModeDropdown,
+        nameRealmCheck = nameRealmCheck,
         autoCloseCheck = autoCloseCheck,
         websiteCheckboxes = websiteCheckboxes
     }
 
     -- Function to refresh the panel with current settings
     panel.refresh = function()
-        -- Refresh copy mode dropdown
-        local copyMode = ns.config.COPY_MODE
-        UIDropDownMenu_SetSelectedValue(copyModeDropdown, copyMode)
-        if copyMode == "url" then
-            UIDropDownMenu_SetText(copyModeDropdown, "Full URL")
-        else
-            UIDropDownMenu_SetText(copyModeDropdown, "Name-Realm")
-        end
+        -- Refresh name-realm checkbox
+        nameRealmCheck:SetChecked(ns.config.SHOW_NAME_REALM)
 
         -- Refresh auto-close checkbox
         autoCloseCheck:SetChecked(ns.config.AUTO_CLOSE_DIALOG)

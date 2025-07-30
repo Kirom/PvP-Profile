@@ -178,22 +178,39 @@ local function AddPvPProfileOptions(owner, rootDescription, contextData)
             providerCount = providerCount + 1
         end
 
-        -- Only add menu items if there are enabled providers
-        if providerCount > 0 then
+        -- Check if name-realm is enabled
+        local showNameRealm = ns.config.SHOW_NAME_REALM
+
+        -- Only add menu items if there are enabled providers or name-realm is enabled
+        if providerCount > 0 or showNameRealm then
             rootDescription:CreateDivider()
 
-            -- Always add individual buttons for each enabled provider
+            -- Add title
+            rootDescription:CreateTitle("PvP Profile")
+
+            -- Add individual buttons for each enabled provider
             for providerId, provider in pairs(enabledProviders) do
                 rootDescription:CreateButton(provider.name, function()
-                    local copyText = ns.url.GetCopyText(selectedName, selectedRealm, providerId)
-                    if copyText then
-                        ns.ui.ShowCopyURLDialog(copyText, provider.name)
+                    local url = ns.url.GetProviderURL(selectedName, selectedRealm, providerId)
+                    if url then
+                        ns.ui.ShowCopyURLDialog(url, provider.name)
                     end
                 end)
                 ns.utils.DebugPrint("Added menu option for", provider.name)
             end
+
+            -- Add Name-Realm button if enabled
+            if showNameRealm then
+                rootDescription:CreateButton("Name-Realm", function()
+                    local nameRealm = ns.url.GetNameRealmFormat(selectedName, selectedRealm)
+                    if nameRealm then
+                        ns.ui.ShowCopyURLDialog(nameRealm, "Name-Realm")
+                    end
+                end)
+                ns.utils.DebugPrint("Added Name-Realm menu option")
+            end
         else
-            ns.utils.DebugPrint("No enabled providers - skipping menu options")
+            ns.utils.DebugPrint("No enabled providers and name-realm disabled - skipping menu options")
         end
     else
         ns.utils.DebugPrint("No valid name/realm found - skipping menu option")

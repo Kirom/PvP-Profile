@@ -9,7 +9,7 @@ ns.config = {}
 -- Default configuration values
 local defaults = {
     DEBUG = false,                                -- Set to true to enable debug output
-    COPY_MODE = "name",                           -- Copy mode: "url" for full URL, "name" for name-realm
+    SHOW_NAME_REALM = true,                       -- Show Name-Realm button in context menus
     AUTO_CLOSE_DIALOG = true,                     -- Auto-close copy dialog after Ctrl+C
     -- Website enable/disable flags
     ENABLED_WEBSITES = {
