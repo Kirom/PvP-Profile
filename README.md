@@ -8,7 +8,7 @@ A modular World of Warcraft addon that provides convenient access to multiple Pv
 * **Configurable Providers**: Enable or disable individual websites through the options panel
 * **Direct Menu Integration**: Individual buttons for each enabled website directly in context menus
 * **Right-click Integration**: Works on LFG entries, party members, guild members, friends, targets, and more
-* **Dual Copy Modes**: Choose between name-realm format or full URLs
+* **Name-Realm Option**: Optional button to copy name-realm for manual searching
 * **Cross-realm Support**: Properly handles players from different realms
 * **Region Detection**: Automatically detects your region (US, EU, KR, TW, CN)
 * **Persistent Settings**: All preferences saved between sessions
@@ -29,8 +29,8 @@ A modular World of Warcraft addon that provides convenient access to multiple Pv
 ### Basic Usage
 
 1. **Right-click on any player** (target, party member, guild member, friend, LFG entry, etc.)
-2. Look for individual website buttons in the context menu (e.g., "Check-PvP", "Drustvar", "Seramate")
-3. **Click the desired option** to open a dialog with the profile link or name-realm
+2. Look for the "PvP Profile" section in the context menu
+3. **Click individual website buttons** (e.g., "Check-PvP", "Drustvar", "Seramate") for direct URLs or "Name-Realm" for manual searching
 4. **Press Ctrl+C** to copy to your clipboard
 5. **Use the copied content** in your browser or for searching
 
@@ -41,16 +41,14 @@ Access the options panel through:
 - Slash command: `/pvpprofile options` or `/pvp options`
 
 **Available Settings:**
-- **Copy Mode**: Choose between "Name-Realm" (for manual searching) or "Full URL" (direct links)
+- **Show Name-Realm Button**: Enable/disable the Name-Realm button in context menus
 - **Auto-close Dialog**: Automatically close the copy dialog after Ctrl+C
 - **Website Selection**: Enable/disable individual website providers
 
 ### Slash Commands
 
 - `/pvpprofile` or `/pvp` - Show help
-- `/pvpprofile usename` - Switch to name-realm copy mode
-- `/pvpprofile useurl` - Switch to URL copy mode
-- `/pvpprofile mode` - Show current copy mode
+- `/pvpprofile namerealm` - Toggle Name-Realm button in context menus
 - `/pvpprofile autoclose` - Toggle auto-close dialog
 - `/pvpprofile debug` - Toggle debug output
 - `/pvpprofile options` - Open options panel
