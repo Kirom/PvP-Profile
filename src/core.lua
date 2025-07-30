@@ -16,4 +16,4 @@ local function Initialize()
 end
 
 -- Start initialization
-Initialize() 
+Initialize()

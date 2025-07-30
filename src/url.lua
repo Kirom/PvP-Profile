@@ -6,7 +6,7 @@ ns.url = {}
 -- Generate URLs for all enabled providers
 function ns.url.GetAllURLs(name, realm)
     if not name or not realm then return {} end
-    
+
     return ns.providers.GenerateURLs(name, realm)
 end
 
@@ -26,13 +26,9 @@ function ns.url.GetCopyText(name, realm, providerId)
                 return urls[providerId].url
             end
         end
-        
+
         -- Fallback to first available URL if no specific provider
         local urls = ns.url.GetAllURLs(name, realm)
-        for _, urlData in pairs(urls) do
-            return urlData.url
-        end
+        return urls[1].url
     end
-    
-    return nil
-end 
+end

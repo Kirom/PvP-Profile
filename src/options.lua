@@ -83,7 +83,7 @@ local function CreateOptionsPanel()
 
     -- Store position for dynamic checkbox creation
     local websiteStartY = yOffset
-    
+
     -- Container for website checkboxes (will be created dynamically)
     local websiteCheckboxes = {}
 
@@ -110,15 +110,15 @@ local function CreateOptionsPanel()
         else
             UIDropDownMenu_SetText(copyModeDropdown, "Name-Realm")
         end
-        
+
         -- Refresh auto-close checkbox
         autoCloseCheck:SetChecked(ns.config.AUTO_CLOSE_DIALOG)
-        
+
         -- Create/update website checkboxes dynamically
         local currentY = websiteStartY
-        
+
         -- Clear existing checkboxes and associated text elements
-        for providerId, checkbox in pairs(websiteCheckboxes) do
+        for _, checkbox in pairs(websiteCheckboxes) do
             checkbox:Hide()
             checkbox:SetParent(nil)
             -- Clean up any associated text elements
@@ -128,36 +128,36 @@ local function CreateOptionsPanel()
             end
         end
         websiteCheckboxes = {}
-        
+
         -- Create checkboxes for each available provider
         for providerId, provider in pairs(ns.providers.GetAllProviders()) do
             local checkbox = CreateFrame(
                 "CheckButton", "PvPProfile" .. providerId .. "Check", panel, "InterfaceOptionsCheckButtonTemplate"
             )
             checkbox:SetPoint("TOPLEFT", panel, "TOPLEFT", PADDING, currentY)
-            
+
             -- Set checkbox text with website name
             checkbox.Text:SetText(provider.name)
             checkbox:SetScript("OnClick", function(self)
                 ns.SetConfig("ENABLED_WEBSITES", self:GetChecked(), providerId)
             end)
             checkbox:SetChecked(ns.IsWebsiteEnabled(providerId))
-            
+
             -- Add website URL next to the checkbox
             if provider.websiteURL then
                 local urlText = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
                 urlText:SetPoint("LEFT", checkbox.Text, "RIGHT", 10, 0)
-                
+
                 -- Handle both string and function websiteURL values
                 local urlValue = provider.websiteURL
                 if type(urlValue) == "function" then
                     urlValue = urlValue()
                 end
-                
+
                 urlText:SetText("|cff888888(" .. urlValue .. ")|r")
                 checkbox.urlText = urlText -- Store reference for cleanup
             end
-            
+
             websiteCheckboxes[providerId] = checkbox
             currentY = currentY - 25
         end
@@ -200,4 +200,4 @@ function ns.options.Open()
     else
         Settings.OpenToCategory(ns.options.panel.name)
     end
-end 
+end

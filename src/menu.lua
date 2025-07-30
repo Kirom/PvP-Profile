@@ -170,18 +170,18 @@ local function AddPvPProfileOptions(owner, rootDescription, contextData)
     if name and realm then
         selectedName = name
         selectedRealm = realm
-        
+
         -- Get enabled providers
         local enabledProviders = ns.providers.GetEnabledProviders()
         local providerCount = 0
         for _ in pairs(enabledProviders) do
             providerCount = providerCount + 1
         end
-        
+
         -- Only add menu items if there are enabled providers
         if providerCount > 0 then
             rootDescription:CreateDivider()
-            
+
             -- Always add individual buttons for each enabled provider
             for providerId, provider in pairs(enabledProviders) do
                 rootDescription:CreateButton(provider.name, function()

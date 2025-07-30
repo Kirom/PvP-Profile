@@ -109,4 +109,4 @@ configFrame:SetScript("OnEvent", function(_, _, addonName)
 
         configFrame:UnregisterEvent("ADDON_LOADED")
     end
-end) 
+end)

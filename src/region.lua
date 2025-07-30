@@ -33,4 +33,4 @@ end
 -- Get English realm slug from localized name
 function ns.region.GetRealmSlug(realm)
     return ns.realmSlugs[realm] or realm
-end 
+end

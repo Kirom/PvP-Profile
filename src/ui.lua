@@ -88,4 +88,4 @@ function ns.ui.ShowCopyURLDialog(text, providerName)
     instruction:SetText(GetInstructionText())
 
     frame:Show()
-end 
+end

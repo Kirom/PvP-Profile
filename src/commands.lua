@@ -22,7 +22,7 @@ end
 local function HandleSlashCommand(msg)
     local command, arg = string.match(msg, "^(%S*)%s*(.-)$")
     command = string.lower(command or "")
-    
+
     if command == "" or command == "help" then
         ShowHelp()
     elseif command == "usename" then
@@ -59,7 +59,7 @@ local function HandleSlashCommand(msg)
             print("|cffff0000PvP Profile:|r Please specify a provider to enable")
             return
         end
-        
+
         local provider = ns.providers.GetProvider(providerId)
         if provider then
             ns.SetConfig("ENABLED_WEBSITES", true, providerId)
@@ -73,7 +73,7 @@ local function HandleSlashCommand(msg)
             print("|cffff0000PvP Profile:|r Please specify a provider to disable")
             return
         end
-        
+
         local provider = ns.providers.GetProvider(providerId)
         if provider then
             ns.SetConfig("ENABLED_WEBSITES", false, providerId)
@@ -92,6 +92,6 @@ function ns.commands.RegisterSlashCommands()
     SLASH_PVPPROFILE1 = "/pvpprofile"
     SLASH_PVPPROFILE2 = "/pvp"
     SlashCmdList["PVPPROFILE"] = HandleSlashCommand
-    
+
     ns.utils.DebugPrint("Slash commands registered")
-end 
+end
