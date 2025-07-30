@@ -1,5 +1,5 @@
 -- Taken from RaiderIO/db/db_realms.lua and modified
--- with respect to Check-PvP.fr website format @2025-06-29
+-- with respect to websites format @2025-06-29
 
 local _, ns = ...
 
