@@ -1,0 +1,53 @@
+{
+  "name": "pvpprofile",
+  "version": "1.0.0",
+  "description": "World of Warcraft addon for multiple PvP website integration",
+  "author": "Kirom",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kirom/PvPProfile.git"
+  },
+  "keywords": [
+    "world-of-warcraft",
+    "wow",
+    "addon",
+    "pvp",
+    "check-pvp",
+    "drustvar",
+    "seramate",
+    "armory",
+    "arena",
+    "classic"
+  ],
+  "scripts": {
+    "test": "echo \"No tests specified\"",
+    "lint": "bash scripts/run_luacheck.sh",
+    "package": "echo 'Packaging is done by the bigwigs packager'",
+    "release": "bash scripts/release.sh"
+  },
+  "devDependencies": {
+    "luacheck": "*"
+  },
+  "wow": {
+    "interface": "110107",
+    "title": "PvP Profile",
+    "author": "Kirom",
+    "category": "PvP",
+    "savedVariables": [
+      "PvPProfileDB"
+    ]
+  },
+  "distribution": {
+    "curseforge": {
+      "url": "https://www.curseforge.com/wow/addons/pvp-profile",
+      "gameVersions": ["110105", "110107"]
+    },
+    "wago": {
+      "url": "https://addons.wago.io/addons/pvp-profile"
+    },
+    "wowup": {
+      "supported": true
+    }
+  }
+} 

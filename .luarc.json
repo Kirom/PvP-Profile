@@ -1,0 +1,41 @@
+{
+  "diagnostics": {
+    "globals": [
+      "print",
+      "CreateFrame",
+      "UIParent",
+      "GameFontNormal",
+      "GameFontHighlight",
+      "GetRealmName",
+      "UnitGUID",
+      "UnitName",
+      "UnitExists",
+      "GetCurrentRegion",
+      "SlashCmdList",
+      "C_LFGList",
+      "C_FriendList",
+      "Menu",
+      "PvPProfileDB"
+    ],
+    "disable": [
+      "undefined-global",
+      "lowercase-global"
+    ]
+  },
+  "runtime": {
+    "version": "Lua 5.1",
+    "special": {
+      "include": "function"
+    }
+  },
+  "workspace": {
+    "ignoreDir": [
+      ".git",
+      ".github",
+      "scripts"
+    ],
+    "library": [
+      "src"
+    ]
+  }
+} 

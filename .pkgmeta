@@ -1,0 +1,23 @@
+package-as: PvPProfile
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
+
+ignore:
+  - README.md
+  - CHANGELOG.md
+  - CONTRIBUTING.md
+  - DESCRIPTION.md
+  - LICENSE
+  - TODO.md
+  - assets
+  - docs
+  - scripts
+  - package.json
+  - .github
+  - .gitignore
+  - .pkgmeta
+  - ReleaseNotes
+
+license-output: LICENSE 

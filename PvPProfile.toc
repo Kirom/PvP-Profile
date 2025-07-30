@@ -1,0 +1,38 @@
+## Interface: 110107
+## Title: PvP Profile
+## Notes: Addon that adds profile links to multiple PvP websites through player dropdown menus in LFG and other contexts.
+## Author: Kirom
+## Version: 1.0.0
+## IconTexture: Interface\AddOns\PvPProfile\src\Icon.png
+## License: MIT
+## Category: PvP
+
+## SavedVariables: PvPProfileDB
+
+# Utilities
+src/utils.lua
+
+# Config
+src/config.lua
+
+# Database
+src/db/db_realms.lua
+src/db/db_regions.lua
+
+# Providers (Website Integrations)
+src/providers/provider_registry.lua
+src/providers/checkpvp.lua
+src/providers/drustvar.lua
+src/providers/seramate.lua
+
+# Core modules
+src/region.lua
+src/url.lua
+src/ui.lua
+src/options.lua
+src/menu.lua
+src/events.lua
+src/commands.lua
+
+# Core coordination
+src/core.lua 
