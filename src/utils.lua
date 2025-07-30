@@ -28,3 +28,13 @@ function ns.utils.GenerateClosure(func)
         return func(owner, rootDescription, contextData)
     end
 end
+
+-- Function to check if we're in classic WoW
+function ns.utils.IsClassicWoW()
+    -- Use WOW_PROJECT_ID for reliable version detection
+    -- Reference: https://warcraft.wiki.gg/wiki/WOW_PROJECT_ID
+    local projectID = WOW_PROJECT_ID
+    local isClassic = projectID ~= 1 -- Not mainline retail
+    ns.utils.DebugPrint("Is Classic:", isClassic)
+    return isClassic
+end

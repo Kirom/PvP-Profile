@@ -9,10 +9,10 @@ local drustvar = {
     name = "Drustvar",
     enabled = true,
     supportsClassic = false, -- Retail only
-    websiteURL = "drustvar.com",
+    baseURL = "drustvar.com",
 
     -- Generate Drustvar URL for a player
-    getURL = function(name, realm, regionCode, regionId)
+    getFullURL = function(self, name, realm, regionCode, regionId)
         if not name or not realm then return nil end
 
         -- Debug output to help troubleshoot
@@ -38,7 +38,8 @@ local drustvar = {
         )
 
         -- Drustvar URL format: https://drustvar.com/character/[REGION]/[REALM]/[NAME]
-        return string.format("https://drustvar.com/character/%s/%s/%s",
+        return string.format("https://%s/character/%s/%s/%s",
+            self.baseURL,
             drustvarRegion,
             drustvarRealm,
             drustvarName

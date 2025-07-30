@@ -9,10 +9,10 @@ local seramate = {
     name = "Seramate",
     enabled = true,
     supportsClassic = false, -- Retail only
-    websiteURL = "seramate.com",
+    baseURL = "seramate.com",
 
     -- Generate Seramate URL for a player
-    getURL = function(name, realm, regionCode, regionId)
+    getFullURL = function(self, name, realm, regionCode, regionId)
         if not name or not realm then return nil end
 
         -- Debug output to help troubleshoot
@@ -38,7 +38,8 @@ local seramate = {
         )
 
         -- Seramate URL format: https://seramate.com/[REGION]/[REALM]/[NAME]
-        return string.format("https://seramate.com/%s/%s/%s",
+        return string.format("https://%s/%s/%s/%s",
+            self.baseURL,
             seramateRegion,
             seramateRealm,
             seramateName

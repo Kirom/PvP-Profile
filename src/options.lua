@@ -110,17 +110,12 @@ local function CreateOptionsPanel()
             checkbox:SetChecked(ns.IsWebsiteEnabled(providerId))
 
             -- Add website URL next to the checkbox
-            if provider.websiteURL then
+            if provider.baseURL then
                 local urlText = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
                 urlText:SetPoint("LEFT", checkbox.Text, "RIGHT", 10, 0)
 
-                -- Handle both string and function websiteURL values
-                local urlValue = provider.websiteURL
-                if type(urlValue) == "function" then
-                    urlValue = urlValue()
-                end
-
-                urlText:SetText("|cff888888(" .. urlValue .. ")|r")
+                -- Display baseURL
+                urlText:SetText("|cff888888(" .. provider.baseURL .. ")|r")
                 checkbox.urlText = urlText -- Store reference for cleanup
             end
 

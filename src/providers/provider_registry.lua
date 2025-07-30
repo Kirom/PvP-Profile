@@ -13,10 +13,10 @@ local registeredProviders = {}
 -- Each provider must implement:
 -- - id: unique string identifier
 -- - name: display name for the website
--- - getURL(name, realm, regionCode): function that returns the URL for the website
+-- - getFullURL(name, realm, regionCode): function that returns the URL for the website
 -- - enabled: boolean indicating if provider is enabled by default
 -- - supportsClassic: boolean indicating if provider works in classic WoW
--- - websiteURL: string or function for display in options panel (optional)
+-- - baseURL: string for URL generation and display in options panel
 
 -- Register a new provider
 function ns.providers.RegisterProvider(provider)
@@ -30,8 +30,8 @@ function ns.providers.RegisterProvider(provider)
         return
     end
 
-    if not provider.getURL or type(provider.getURL) ~= "function" then
-        error("Provider must have a 'getURL' function")
+    if not provider.getFullURL or type(provider.getFullURL) ~= "function" then
+        error("Provider must have a 'getFullURL' function")
         return
     end
 
@@ -40,24 +40,20 @@ function ns.providers.RegisterProvider(provider)
         return
     end
 
+    if not provider.baseURL then
+        error("Provider must have a 'baseURL' field (string)")
+        return
+    end
+
     registeredProviders[provider.id] = provider
     local classicSupport = provider.supportsClassic and "retail+classic" or "retail only"
     ns.utils.DebugPrint("Registered provider:", provider.id, "(" .. provider.name .. ") -", classicSupport)
 end
 
--- Function to check if we're in classic WoW
-local function IsClassicWoW()
-    -- Use WOW_PROJECT_ID for reliable version detection
-    local projectID = WOW_PROJECT_ID
-    local isClassic = projectID ~= 1 -- Not mainline retail
-    ns.utils.DebugPrint("Is Classic:", isClassic)
-    return isClassic
-end
-
 -- Get all registered providers (filtered by WoW version compatibility)
 function ns.providers.GetAllProviders()
     local compatibleProviders = {}
-    local isClassic = IsClassicWoW()
+    local isClassic = ns.utils.IsClassicWoW()
 
     for providerId, provider in pairs(registeredProviders) do
         -- Include provider if it supports current WoW version
@@ -79,7 +75,7 @@ end
 -- Get all enabled providers (filtered by both user preference and WoW version compatibility)
 function ns.providers.GetEnabledProviders()
     local enabledProviders = {}
-    local isClassic = IsClassicWoW()
+    local isClassic = ns.utils.IsClassicWoW()
 
     for providerId, provider in pairs(registeredProviders) do
         -- Check both WoW version compatibility AND user enabled setting
@@ -105,7 +101,7 @@ function ns.providers.GenerateURLs(name, realm)
     local regionCode, regionId = ns.region.GetRegion()
 
     for providerId, provider in pairs(ns.providers.GetEnabledProviders()) do
-        local success, result = pcall(provider.getURL, name, realm, regionCode, regionId)
+        local success, result = pcall(provider.getFullURL, provider, name, realm, regionCode, regionId)
         if success and result then
             urls[providerId] = {
                 provider = provider,
