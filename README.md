@@ -15,7 +15,7 @@
 [![Interface Version](https://img.shields.io/badge/Game%20Version-11.1.7%20|%205.5.0-brightgreen)](https://github.com/Kirom/PvP-Profile)
 [![GitHub issues](https://img.shields.io/github/issues/Kirom/PvP-Profile)](https://github.com/Kirom/PvP-Profile/issues)
 
-[![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289DA?logo=discord)](http://discord.gg/)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289DA?logo=discord)](https://discord.gg/5sMTavfNsE)
 
 </div>
 
@@ -259,7 +259,7 @@ See [CHANGELOG.md](CHANGELOG.md) for a detailed list of all changes and updates.
 ## 📞 Support & Feedback
 
 For bug reports, feature requests, or general feedback:
-- **Discord Community** - [Join our Discord server](http://discord.gg/) for real-time support and discussions
+- **Discord Community** - [Join our Discord server](https://discord.gg/5sMTavfNsE) for real-time support and discussions
 - **GitHub Issues** - [PvP Profile Issues](https://github.com/Kirom/PvP-Profile/issues)
 - **Documentation** - See README.md for detailed usage instructions and screenshots
 
@@ -271,7 +271,7 @@ Join our Discord server to:
 - Share screenshots and experiences
 - Connect with other PvP players
 
-[![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289DA?logo=discord)](http://discord.gg/)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289DA?logo=discord)](https://discord.gg/5sMTavfNsE)
 
 ---
 
