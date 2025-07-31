@@ -2,12 +2,15 @@
 ## Title: PvP Profile
 ## Notes: Addon that adds profile links to multiple PvP websites through player dropdown menus in LFG and other contexts.
 ## Author: Kirom
-## Version: 1.0.0
+## Version: @project-version@
 ## IconTexture: Interface\AddOns\PvPProfile\src\Icon.png
 ## License: MIT
 ## Category: PvP
 
 ## SavedVariables: PvPProfileDB
+
+## X-Curse-Project-ID: 1317833
+## X-Wago-ID: rNkP1w6a
 
 # Utilities
 src/utils.lua
