@@ -2,7 +2,7 @@
 
 All notable changes to PvP Profile will be documented in this file.
 
-## [1.0.0] - TBD
+## [1.0.0] - 2025-07-31
 
 ### Added
 - Initial release of PvP Profile addon

@@ -12,7 +12,7 @@
 [![Wago](https://img.shields.io/badge/Wago-Install-blue?)](https://addons.wago.io/addons/pvp-profile)
 
 [![World of Warcraft](https://img.shields.io/badge/World%20of%20Warcraft-The%20War%20Within%20%7C%20MoP%20Classic-0084ff?&logo=battle.net)](https://worldofwarcraft.com)
-[![Interface Version](https://img.shields.io/badge/Game%20Version-11.1.7%20|%205.5.0-brightgreen)](https://github.com/Kirom/PvPProfile)
+[![Interface Version](https://img.shields.io/badge/Game%20Version-11.1.7%20|%205.5.0-brightgreen)](https://github.com/Kirom/PvP-Profile)
 [![GitHub issues](https://img.shields.io/github/issues/Kirom/PvP-Profile)](https://github.com/Kirom/PvP-Profile/issues)
 
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289DA?logo=discord)](http://discord.gg/)
@@ -207,7 +207,6 @@ PvPProfile/
 ├── CHANGELOG.md                    # Version history and changes
 ├── README.md                       # This file
 └── LICENSE                         # License file
-
 ```
 
 ### Debug Mode
@@ -261,7 +260,7 @@ See [CHANGELOG.md](CHANGELOG.md) for a detailed list of all changes and updates.
 
 For bug reports, feature requests, or general feedback:
 - **Discord Community** - [Join our Discord server](http://discord.gg/) for real-time support and discussions
-- **GitHub Issues** - [PvP Profile Issues](https://github.com/Kirom/PvPProfile/issues)
+- **GitHub Issues** - [PvP Profile Issues](https://github.com/Kirom/PvP-Profile/issues)
 - **Documentation** - See README.md for detailed usage instructions and screenshots
 
 ### Discord Community
