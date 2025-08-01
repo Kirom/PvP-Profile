@@ -53,7 +53,7 @@ end
 -- Get all registered providers (filtered by WoW version compatibility)
 function ns.providers.GetAllProviders()
     local compatibleProviders = {}
-    local isClassic = ns.utils.IsClassicWoW()
+    local isClassic = ns.config.isClassicWoW
 
     for providerId, provider in pairs(registeredProviders) do
         -- Include provider if it supports current WoW version
@@ -75,7 +75,7 @@ end
 -- Get all enabled providers (filtered by both user preference and WoW version compatibility)
 function ns.providers.GetEnabledProviders()
     local enabledProviders = {}
-    local isClassic = ns.utils.IsClassicWoW()
+    local isClassic = ns.config.isClassicWoW
 
     for providerId, provider in pairs(registeredProviders) do
         -- Check both WoW version compatibility AND user enabled setting

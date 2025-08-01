@@ -17,6 +17,7 @@ local defaults = {
         drustvar = true,                          -- Enable Drustvar.com by default (retail only)
         seramate = true,                          -- Enable Seramate.com by default (retail only)
     },
+    isClassicWoW = ns.utils.IsClassicWoW(),
 }
 
 -- Fixed settings (not user-configurable)

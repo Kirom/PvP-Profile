@@ -5,7 +5,7 @@ local _, ns = ...
 
 -- Function to detect game version and set appropriate base URL
 local function GetCheckPvPBaseURL()
-    local isClassic = ns.utils.IsClassicWoW()
+    local isClassic = ns.config.isClassicWoW
     if isClassic then
         return "check-pvp-classic.fr"
     else

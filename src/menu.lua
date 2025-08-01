@@ -166,6 +166,7 @@ local function AddPvPProfileOptions(owner, rootDescription, contextData)
 
     local name, realm = GetNameRealmForMenu(owner, rootDescription, contextData)
     ns.utils.DebugPrint("Got name =", name, "realm =", realm)
+    ns.utils.DebugPrint("Is Classic WoW cached:", ns.config.isClassicWoW)
 
     if name and realm then
         selectedName = name
