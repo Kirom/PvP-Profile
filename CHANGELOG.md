@@ -2,6 +2,14 @@
 
 All notable changes to PvP Profile will be documented in this file.
 
+## [1.0.1] - 2025-08-01
+
+### Changed
+- **Performance Optimization**: Refactored Classic WoW detection to cache its value and reuse across modules
+  - Updated `config.lua` to store the Classic WoW detection result in `ns.config.isClassicWoW`
+  - Modified `checkpvp.lua`, `provider_registry.lua`, and `menu.lua` to utilize the new centralized configuration
+  - Improves performance by avoiding repeated Classic WoW detection calls
+
 ## [1.0.0] - 2025-07-31
 
 ### Added
