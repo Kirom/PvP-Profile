@@ -25,6 +25,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      
+      - name: Generate CHANGELOG.md for this version
+        run: |
+          VERSION=$(git describe --tags --abbrev=0)
+          cp "ReleaseNotes/${VERSION}.md" CHANGELOG.md
 
       - name: Package and release
         uses: BigWigsMods/packager@v2
