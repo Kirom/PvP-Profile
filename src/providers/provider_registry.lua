@@ -93,6 +93,25 @@ function ns.providers.GetEnabledProviders()
     return enabledProviders
 end
 
+-- Generate URL for a specific provider
+function ns.providers.GenerateURLForProvider(name, realm, providerId)
+    if not name or not realm or not providerId then return nil end
+
+    local provider = ns.providers.GetEnabledProviders()[providerId]
+    if not provider then return nil end
+
+    local regionCode, regionId = ns.region.GetRegion()
+    local success, result = pcall(provider.getFullURL, provider, name, realm, regionCode, regionId)
+
+    if success and result then
+        ns.utils.DebugPrint("Generated URL for", provider.name .. ":", result)
+        return result
+    else
+        ns.utils.DebugPrint("Failed to generate URL for", provider.name, "- Error:", result or "unknown")
+        return nil
+    end
+end
+
 -- Generate URLs for all enabled providers
 function ns.providers.GenerateURLs(name, realm)
     if not name or not realm then return {} end

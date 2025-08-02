@@ -14,11 +14,7 @@ end
 function ns.url.GetProviderURL(name, realm, providerId)
     if not name or not realm or not providerId then return end
 
-    local urls = ns.url.GetAllURLs(name, realm)
-    if urls[providerId] then
-        return urls[providerId].url
-    end
-    return nil
+    return ns.providers.GenerateURLForProvider(name, realm, providerId)
 end
 
 -- Get name-realm format for manual searching

@@ -2,6 +2,14 @@
 
 All notable changes to PvP Profile will be documented in this file.
 
+## [1.0.2] - 2025-08-02
+
+### Changed
+- **Performance Optimization**: URL generation now optimized for individual provider selection
+  - Added `GenerateURLForProvider()` function to generate URLs only for the selected provider
+  - Modified `GetProviderURL()` to use the new optimized function instead of generating URLs for all providers
+  - Significantly reduces unnecessary URL generation when users select a specific provider from the menu
+
 ## [1.0.1] - 2025-08-01
 
 ### Changed
