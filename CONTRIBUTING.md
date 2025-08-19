@@ -177,4 +177,4 @@ If you have questions about contributing:
 3. Join our Discord server
 4. Contact the maintainers
 
-Thank you for helping make PvP Profile better! 
+Thank you for helping make PvP Profile better!💝💝💝
