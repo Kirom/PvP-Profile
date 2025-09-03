@@ -30,7 +30,7 @@
     "luacheck": "*"
   },
   "wow": {
-    "interface": "110107",
+    "interface": "11020",
     "title": "PvP Profile",
     "author": "Kirom",
     "category": "PvP",
@@ -41,7 +41,7 @@
   "distribution": {
     "curseforge": {
       "url": "https://www.curseforge.com/wow/addons/pvp-profile",
-      "gameVersions": ["110105", "110107"]
+      "gameVersions": ["110200"]
     },
     "wago": {
       "url": "https://addons.wago.io/addons/pvp-profile"
