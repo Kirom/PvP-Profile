@@ -1,6 +1,6 @@
 {
   "name": "pvpprofile",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "World of Warcraft addon for multiple PvP website integration",
   "author": "Kirom",
   "license": "MIT",
@@ -41,7 +41,9 @@
   "distribution": {
     "curseforge": {
       "url": "https://www.curseforge.com/wow/addons/pvp-profile",
-      "gameVersions": ["110200"]
+      "gameVersions": [
+        "110200"
+      ]
     },
     "wago": {
       "url": "https://addons.wago.io/addons/pvp-profile"
@@ -50,4 +52,4 @@
       "supported": true
     }
   }
-} 
+}
