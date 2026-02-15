@@ -261,10 +261,3 @@ echo -e "${GREEN}🎉 Release process initiated!${NC}"
 if [ -f "README.md.backup" ]; then
     rm README.md.backup
 fi
-
-# Optional: Open GitHub Actions in browser (uncomment if desired)
-# if command -v xdg-open > /dev/null; then
-#     xdg-open "https://github.com/$(git config --get remote.origin.url | sed 's/.*github.com[:/]\([^.]*\).*/\1/')/actions"
-# elif command -v open > /dev/null; then
-#     open "https://github.com/$(git config --get remote.origin.url | sed 's/.*github.com[:/]\([^.]*\).*/\1/')/actions"
-# fi 
