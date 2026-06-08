@@ -22,7 +22,7 @@ local validTypes = {
     COMMUNITIES_WOW_MEMBER = true,
     BN_FRIEND = true,
     SELF = true,
-    ENEMY_PLAYER = true,
+    -- ENEMY_PLAYER excluded: causes taint errors in secure contexts (battlegrounds)
     OTHER_PLAYER = true,
 }
 
@@ -241,7 +241,8 @@ function ns.menu.RegisterMenuHooks()
             ModifyMenu("MENU_UNIT_COMMUNITIES_WOW_MEMBER", ns.utils.GenerateClosure(AddPvPProfileOptions))
             ModifyMenu("MENU_UNIT_BN_FRIEND", ns.utils.GenerateClosure(AddPvPProfileOptions))
             ModifyMenu("MENU_UNIT_SELF", ns.utils.GenerateClosure(AddPvPProfileOptions))
-            ModifyMenu("MENU_UNIT_ENEMY_PLAYER", ns.utils.GenerateClosure(AddPvPProfileOptions))
+            -- MENU_UNIT_ENEMY_PLAYER excluded: enemy unit frames in BGs use secure
+            -- context for targeting, causing taint errors in MeasureFrameExtents
             ModifyMenu("MENU_UNIT_OTHER_PLAYER", ns.utils.GenerateClosure(AddPvPProfileOptions))
         end)
 
