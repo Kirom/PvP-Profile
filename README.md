@@ -8,7 +8,7 @@
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/Kirom/PvP-Profile)](https://github.com/Kirom/PvP-Profile/releases/latest)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Kirom/PvP-Profile/release.yml?&label=Build)](https://github.com/Kirom/PvP-Profile/actions)
-[![CurseForge](https://img.shields.io/badge/CurseForge-Download-orange?&logo=curseforge)](https://www.curseforge.com/wow/addons/pvp-profile)
+[![CurseForge](https://img.shields.io/curseforge/dt/1317833?label=CurseForge&color=orange&logo=curseforge)](https://www.curseforge.com/wow/addons/pvp-profile)
 [![Wago](https://img.shields.io/badge/Wago-Install-blue?)](https://addons.wago.io/addons/pvp-profile)
 
 [![World of Warcraft](https://img.shields.io/badge/World%20of%20Warcraft-Midnight%20%7C%20MoP%20Classic-0084ff?&logo=battle.net)](https://worldofwarcraft.blizzard.com/ru-ru/midnight)
