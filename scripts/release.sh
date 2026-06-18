@@ -1,7 +1,30 @@
 #!/bin/bash
 
 # Release helper script for PvP Profile
-# This script helps create version tags and trigger GitHub Actions releases
+#
+# Automates the full release flow:
+#   1. (optional) Bump Retail/Classic interface versions in both TOC files
+#   2. Sync package.json (version, wow.interface, curseforge gameVersions)
+#   3. Update the Game Version badge in README.md
+#   4. Scaffold ReleaseNotes/vX.Y.Z.md from a template (REQUIRED: the release
+#      workflow copies this file to CHANGELOG.md, so a release without it fails)
+#   5. Commit, tag and push -> triggers the GitHub Actions release pipeline
+#
+# Usage:
+#   scripts/release.sh [VERSION] [options]
+#
+# Options:
+#   --retail   <interface>   New Retail interface number   (e.g. 120005)
+#   --classic  <interface>   New Classic interface number  (e.g. 50504)
+#   --notes    <text>        One-line summary for the release notes / commit
+#   --type     <type>        Release type label (default: "Patch Release")
+#   -y, --yes                Skip confirmation prompts (non-interactive)
+#   --dry-run                Make file changes but do NOT commit/tag/push
+#   -h, --help               Show this help
+#
+# Examples:
+#   scripts/release.sh 1.0.13 --classic 50504 --notes "MoP Classic 5.5.4 compat"
+#   scripts/release.sh 1.1.0 --retail 120100 --type "Minor Release" -y
 
 set -e
 
@@ -12,10 +35,57 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+RETAIL_TOC="PvPProfile.toc"
+CLASSIC_TOC="PvPProfile_Classic.toc"
+REPO_URL="https://github.com/Kirom/PvP-Profile"
+
+# ---------------------------------------------------------------------------
+# Argument parsing
+# ---------------------------------------------------------------------------
+NEW_VERSION=""
+NEW_RETAIL_INTERFACE=""
+NEW_CLASSIC_INTERFACE=""
+NOTES=""
+RELEASE_TYPE="Patch Release"
+ASSUME_YES=false
+DRY_RUN=false
+
+print_help() {
+    sed -n '3,30p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --retail)   NEW_RETAIL_INTERFACE="$2"; shift 2 ;;
+        --classic)  NEW_CLASSIC_INTERFACE="$2"; shift 2 ;;
+        --notes)    NOTES="$2"; shift 2 ;;
+        --type)     RELEASE_TYPE="$2"; shift 2 ;;
+        -y|--yes)   ASSUME_YES=true; shift ;;
+        --dry-run)  DRY_RUN=true; shift ;;
+        -h|--help)  print_help ;;
+        -*)         echo -e "${RED}❌ Unknown option: $1${NC}"; exit 1 ;;
+        *)
+            if [ -z "$NEW_VERSION" ]; then NEW_VERSION="$1"; shift
+            else echo -e "${RED}❌ Unexpected argument: $1${NC}"; exit 1; fi
+            ;;
+    esac
+done
+
 echo -e "${BLUE}🚀 PvP Profile Release Helper${NC}"
 echo "======================================="
 
-# Function to validate version format
+confirm() {
+    # confirm "message" -> returns 0 on yes
+    if [ "$ASSUME_YES" = true ]; then return 0; fi
+    read -p "$1 (y/N): " -n 1 -r
+    echo
+    [[ $REPLY =~ ^[Yy]$ ]]
+}
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 validate_version() {
     if [[ ! $1 =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         echo -e "${RED}❌ Invalid version format. Use semantic versioning (e.g., 1.0.1)${NC}"
@@ -23,241 +93,234 @@ validate_version() {
     fi
 }
 
-# Function to convert interface number to version string
-# e.g., 110200 -> 11.2.0, 50500 -> 5.5.0
+validate_interface() {
+    # 5 or 6 digit interface number
+    if [[ ! $1 =~ ^[0-9]{5,6}$ ]]; then
+        echo -e "${RED}❌ Invalid interface number '$1' (expected 5-6 digits, e.g. 120005)${NC}"
+        exit 1
+    fi
+}
+
+# Convert interface number to version string: 120005 -> 12.0.5, 50504 -> 5.5.4
 convert_interface_to_version() {
     local interface_num=$1
     if [[ ${#interface_num} -eq 6 ]]; then
-        # Modern format: 110200 -> 11.2.0
-        # First two digits, then next two digits as a number, then last two digits as a number
-        local major="${interface_num:0:2}"
-        local minor="${interface_num:2:2}"
-        local patch="${interface_num:4:2}"
-        # Remove leading zeros
-        minor=$((10#$minor))
-        patch=$((10#$patch))
-        echo "${major}.${minor}.${patch}"
+        echo "$((10#${interface_num:0:2})).$((10#${interface_num:2:2})).$((10#${interface_num:4:2}))"
     elif [[ ${#interface_num} -eq 5 ]]; then
-        # Classic format: 50500 -> 5.5.0
-        # First digit, then next two digits as a number, then last two digits as a number
-        local major="${interface_num:0:1}"
-        local minor="${interface_num:1:2}"
-        local patch="${interface_num:3:2}"
-        # Remove leading zeros
-        minor=$((10#$minor))
-        patch=$((10#$patch))
-        echo "${major}.${minor}.${patch}"
+        echo "$((10#${interface_num:0:1})).$((10#${interface_num:1:2})).$((10#${interface_num:3:2}))"
     else
         echo "unknown"
     fi
 }
 
-# Function to extract interface version from TOC file
 extract_interface_version() {
     local toc_file=$1
     if [ -f "$toc_file" ]; then
-        local interface_line=$(grep "^## Interface:" "$toc_file" | head -1)
+        local interface_line
+        interface_line=$(grep "^## Interface:" "$toc_file" | head -1)
         if [[ $interface_line =~ Interface:[[:space:]]*([0-9]+) ]]; then
             echo "${BASH_REMATCH[1]}"
-        else
-            echo ""
         fi
-    else
-        echo ""
     fi
 }
 
-# Function to update interface versions in README.md
-update_interface_versions_in_readme() {
-    local retail_version=$1
-    local classic_version=$2
-    local readme_file="README.md"
-    
-    if [ ! -f "$readme_file" ]; then
-        echo -e "${RED}❌ README.md not found!${NC}"
-        return 1
+set_toc_interface() {
+    local toc_file=$1 new_interface=$2
+    if [ ! -f "$toc_file" ]; then
+        echo -e "${RED}❌ $toc_file not found!${NC}"; exit 1
     fi
+    sed -i "s/^## Interface:.*/## Interface: ${new_interface}/" "$toc_file"
+    echo -e "${GREEN}✅ ${toc_file}: Interface -> ${new_interface}${NC}"
+}
 
-    # Update the interface version badge using awk for better reliability
-    local new_badge="[![Interface Version](https://img.shields.io/badge/Game%20Version-${retail_version}%20|%20${classic_version}-brightgreen)](https://github.com/Kirom/PvP-Profile)"
-    
-    # Use awk to replace the line containing "Interface Version"
+update_interface_versions_in_readme() {
+    local retail_version=$1 classic_version=$2 readme_file="README.md"
+    [ -f "$readme_file" ] || { echo -e "${RED}❌ README.md not found!${NC}"; return 1; }
+    local new_badge="[![Interface Version](https://img.shields.io/badge/Game%20Version-${retail_version}%20|%20${classic_version}-brightgreen)](${REPO_URL})"
     awk -v new_badge="$new_badge" '
-        /\[!\[Interface Version\]/ {
-            print new_badge
-            next
-        }
+        /\[!\[Interface Version\]/ { print new_badge; next }
         { print }
     ' "$readme_file" > "${readme_file}.tmp" && mv "${readme_file}.tmp" "$readme_file"
-    
-    echo -e "${GREEN}✅ Updated interface versions in README.md: ${retail_version} | ${classic_version}${NC}"
+    echo -e "${GREEN}✅ README.md badge -> ${retail_version} | ${classic_version}${NC}"
 }
 
-# Check interface versions
-echo -e "${BLUE}🔍 Checking interface versions...${NC}"
+# Update a top-level "key": "value" string in package.json (simple, dependency-free)
+set_json_string() {
+    local key=$1 value=$2 file="package.json"
+    sed -i "s/\"${key}\": \"[^\"]*\"/\"${key}\": \"${value}\"/" "$file"
+}
 
-# Extract interface versions from TOC files
-RETAIL_INTERFACE=$(extract_interface_version "PvPProfile.toc")
-CLASSIC_INTERFACE=$(extract_interface_version "PvPProfile_Classic.toc")
+create_release_notes() {
+    local version=$1 retail_version=$2 classic_version=$3 notes=$4 release_type=$5
+    local notes_file="ReleaseNotes/v${version}.md"
+    local date_str
+    date_str=$(date "+%B %-d, %Y" 2>/dev/null || date "+%B %d, %Y")
 
-if [ -z "$RETAIL_INTERFACE" ]; then
-    echo -e "${RED}❌ Could not extract interface version from PvPProfile.toc${NC}"
-    exit 1
+    if [ -f "$notes_file" ]; then
+        echo -e "${GREEN}✅ Release notes already exist: ${notes_file}${NC}"
+        return 0
+    fi
+
+    mkdir -p ReleaseNotes
+    local overview change_body
+    if [ -n "$notes" ]; then
+        overview="$notes"
+        change_body="- ${notes}"
+    else
+        overview="TODO: summarize this release."
+        change_body="- TODO: describe the changes in this release"
+    fi
+
+    cat > "$notes_file" <<EOF
+# PvP Profile v${version} Release Notes
+
+**Release Date:** ${date_str}
+**Version:** ${version}
+**Type:** ${release_type}
+**Compatibility:** Retail ${retail_version} / MoP Classic ${classic_version}
+
+## Overview
+
+${overview}
+
+## Changes
+
+${change_body}
+
+## Known Issues
+
+None reported for this version.
+
+## Support
+
+If you encounter any issues with this release, please:
+1. Check the [GitHub Issues](${REPO_URL}/issues) page
+2. Ensure you're using the correct version for your WoW client (retail vs classic)
+3. Try disabling other addons to check for conflicts
+4. Check the [Discord](https://discord.gg/5sMTavfNsE)
+
+---
+
+**Thank you for using PvP Profile!**
+EOF
+    echo -e "${GREEN}✅ Created release notes: ${notes_file}${NC}"
+    if [ -z "$notes" ]; then
+        echo -e "${YELLOW}⚠️  No --notes provided; please review/edit ${notes_file} before continuing.${NC}"
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# Pre-flight checks
+# ---------------------------------------------------------------------------
+[ -f "package.json" ] || { echo -e "${RED}❌ package.json not found! Run from repo root.${NC}"; exit 1; }
+
+# Apply interface bumps (if requested) BEFORE reading current values
+if [ -n "$NEW_RETAIL_INTERFACE" ]; then
+    validate_interface "$NEW_RETAIL_INTERFACE"
+    set_toc_interface "$RETAIL_TOC" "$NEW_RETAIL_INTERFACE"
+fi
+if [ -n "$NEW_CLASSIC_INTERFACE" ]; then
+    validate_interface "$NEW_CLASSIC_INTERFACE"
+    set_toc_interface "$CLASSIC_TOC" "$NEW_CLASSIC_INTERFACE"
 fi
 
-if [ -z "$CLASSIC_INTERFACE" ]; then
-    echo -e "${RED}❌ Could not extract interface version from PvPProfile_Classic.toc${NC}"
-    exit 1
-fi
+# Read effective interface versions from TOC files (source of truth)
+echo -e "${BLUE}🔍 Reading interface versions from TOC files...${NC}"
+RETAIL_INTERFACE=$(extract_interface_version "$RETAIL_TOC")
+CLASSIC_INTERFACE=$(extract_interface_version "$CLASSIC_TOC")
+[ -n "$RETAIL_INTERFACE" ]  || { echo -e "${RED}❌ Could not read interface from $RETAIL_TOC${NC}"; exit 1; }
+[ -n "$CLASSIC_INTERFACE" ] || { echo -e "${RED}❌ Could not read interface from $CLASSIC_TOC${NC}"; exit 1; }
 
-# Convert to version strings
 RETAIL_VERSION=$(convert_interface_to_version "$RETAIL_INTERFACE")
 CLASSIC_VERSION=$(convert_interface_to_version "$CLASSIC_INTERFACE")
 
-echo -e "${BLUE}📋 Current interface versions:${NC}"
-echo -e "   Retail: ${GREEN}$RETAIL_VERSION${NC} (Interface: $RETAIL_INTERFACE)"
+echo -e "${BLUE}📋 Interface versions:${NC}"
+echo -e "   Retail:  ${GREEN}$RETAIL_VERSION${NC} (Interface: $RETAIL_INTERFACE)"
 echo -e "   Classic: ${GREEN}$CLASSIC_VERSION${NC} (Interface: $CLASSIC_INTERFACE)"
 
-# Check current versions in README.md
-if [ -f "README.md" ]; then
-    # Extract current versions using a more robust approach
-    CURRENT_README_LINE=$(grep "Game%20Version-" README.md | head -1)
-    if [[ $CURRENT_README_LINE =~ Game%20Version-([0-9]+\.[0-9]+\.[0-9]+)%20\|%20([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-        CURRENT_RETAIL_VERSION="${BASH_REMATCH[1]}"
-        CURRENT_CLASSIC_VERSION="${BASH_REMATCH[2]}"
-        
-        echo -e "${BLUE}📋 README.md interface versions:${NC}"
-        echo -e "   Retail: ${GREEN}$CURRENT_RETAIL_VERSION${NC}"
-        echo -e "   Classic: ${GREEN}$CURRENT_CLASSIC_VERSION${NC}"
-        
-        # Check if versions need updating
-        if [ "$RETAIL_VERSION" != "$CURRENT_RETAIL_VERSION" ] || [ "$CLASSIC_VERSION" != "$CURRENT_CLASSIC_VERSION" ]; then
-            echo -e "${YELLOW}⚠️  Interface versions have changed!${NC}"
-            echo -e "   Retail: $CURRENT_RETAIL_VERSION → $RETAIL_VERSION"
-            echo -e "   Classic: $CURRENT_CLASSIC_VERSION → $CLASSIC_VERSION"
-            
-            # Update README.md
-            update_interface_versions_in_readme "$RETAIL_VERSION" "$CLASSIC_VERSION"
-            
-            # Show changes
-            echo -e "${BLUE}📋 Interface version changes:${NC}"
-            git diff README.md || true
-        else
-            echo -e "${GREEN}✅ Interface versions are up to date${NC}"
-        fi
-    else
-        echo -e "${YELLOW}⚠️  Could not parse current interface versions from README.md${NC}"
-        echo -e "${BLUE}📝 Updating README.md with current interface versions...${NC}"
-        update_interface_versions_in_readme "$RETAIL_VERSION" "$CLASSIC_VERSION"
-    fi
-else
-    echo -e "${RED}❌ README.md not found!${NC}"
-    exit 1
-fi
+# Sync package.json interface fields
+set_json_string "interface" "$RETAIL_INTERFACE"
+# distribution.curseforge.gameVersions -> [retail, classic]
+awk -v retail="$RETAIL_INTERFACE" -v classic="$CLASSIC_INTERFACE" '
+    /"gameVersions": \[/ { print; in_gv=1; printed=0; next }
+    in_gv && /\]/ {
+        if (!printed) { printf "        \"%s\",\n        \"%s\"\n", retail, classic; printed=1 }
+        print; in_gv=0; next
+    }
+    in_gv { next }
+    { print }
+' package.json > package.json.tmp && mv package.json.tmp package.json
+echo -e "${GREEN}✅ package.json: interface + curseforge gameVersions synced${NC}"
+
+# Update README badge
+update_interface_versions_in_readme "$RETAIL_VERSION" "$CLASSIC_VERSION"
 
 # Get current version from package.json
-if [ -f "package.json" ]; then
-    CURRENT_VERSION=$(grep '"version":' package.json | cut -d'"' -f4)
-    echo -e "${BLUE}📋 Current version from package.json: ${GREEN}$CURRENT_VERSION${NC}"
-else
-    echo -e "${RED}❌ package.json not found!${NC}"
-    exit 1
-fi
+CURRENT_VERSION=$(grep '"version":' package.json | head -1 | cut -d'"' -f4)
+echo -e "${BLUE}📋 Current version: ${GREEN}$CURRENT_VERSION${NC}"
 
-# Check if we have uncommitted changes
-if ! git diff-index --quiet HEAD --; then
-    echo -e "${YELLOW}⚠️  You have uncommitted changes. Please commit them first.${NC}"
-    git status --porcelain
-    exit 1
-fi
-
-# Check if we're on the main branch
+# Branch check
 CURRENT_BRANCH=$(git branch --show-current)
 if [ "$CURRENT_BRANCH" != "main" ] && [ "$CURRENT_BRANCH" != "master" ]; then
-    echo -e "${YELLOW}⚠️  You're on branch '$CURRENT_BRANCH'. Consider switching to main/master for releases.${NC}"
-    read -p "Continue anyway? (y/N): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 1
-    fi
+    echo -e "${YELLOW}⚠️  On branch '$CURRENT_BRANCH' (not main/master).${NC}"
+    confirm "Continue anyway?" || exit 1
 fi
 
 # Get new version
-if [ -z "$1" ]; then
+if [ -z "$NEW_VERSION" ]; then
     echo -e "${BLUE}🔢 Enter new version (current: $CURRENT_VERSION):${NC}"
     read -r NEW_VERSION
-else
-    NEW_VERSION=$1
 fi
-
-# Validate version format
 validate_version "$NEW_VERSION"
 
-# Check if tag already exists
 if git tag -l "v$NEW_VERSION" | grep -q "v$NEW_VERSION"; then
-    echo -e "${RED}❌ Tag v$NEW_VERSION already exists!${NC}"
-    exit 1
+    echo -e "${RED}❌ Tag v$NEW_VERSION already exists!${NC}"; exit 1
 fi
 
-echo -e "${BLUE}📝 Updating version from $CURRENT_VERSION to $NEW_VERSION...${NC}"
+# Bump version in package.json
+echo -e "${BLUE}📝 Bumping version $CURRENT_VERSION -> $NEW_VERSION...${NC}"
+set_json_string "version" "$NEW_VERSION"
 
-# Update package.json only
-sed -i "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" package.json
+# Scaffold release notes (REQUIRED by the release workflow)
+create_release_notes "$NEW_VERSION" "$RETAIL_VERSION" "$CLASSIC_VERSION" "$NOTES" "$RELEASE_TYPE"
 
-# Show changes
-echo -e "${BLUE}📋 Changes made:${NC}"
-git diff package.json
-if git diff README.md > /dev/null 2>&1; then
-    echo -e "${BLUE}📋 Interface version changes:${NC}"
-    git diff README.md
+# Show all staged changes
+echo -e "\n${BLUE}📋 Pending changes:${NC}"
+git --no-pager diff --stat
+git status --porcelain
+
+# Dry run stops here
+if [ "$DRY_RUN" = true ]; then
+    echo -e "\n${YELLOW}🧪 Dry run: file changes made but nothing committed/tagged/pushed.${NC}"
+    echo -e "${BLUE}   Review the changes, then re-run without --dry-run.${NC}"
+    exit 0
 fi
 
-# Confirm changes
-echo -e "\n${YELLOW}🤔 Do you want to commit these changes and create release v$NEW_VERSION?${NC}"
-read -p "Continue? (y/N): " -n 1 -r
+# Confirm
 echo
-
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}🔙 Reverting changes...${NC}"
-    git checkout -- package.json
-    if [ -f "README.md.backup" ]; then
-        mv README.md.backup README.md
-    fi
-    echo -e "${BLUE}✅ Changes reverted. Release cancelled.${NC}"
+confirm "🤔 Commit, tag and push release v$NEW_VERSION?" || {
+    echo -e "${YELLOW}🔙 Release cancelled. File changes left in working tree for review.${NC}"
     exit 1
-fi
+}
 
-# Commit version bump and interface updates
-echo -e "${BLUE}💾 Committing version bump and interface updates...${NC}"
-git add package.json
-if git diff --cached README.md > /dev/null 2>&1; then
-    git add README.md
-fi
-git commit -m "Bump version to $NEW_VERSION and update interface versions to $RETAIL_VERSION/$CLASSIC_VERSION"
+# Commit everything related to the release
+COMMIT_MSG="Release v$NEW_VERSION (interface $RETAIL_VERSION/$CLASSIC_VERSION)"
+[ -n "$NOTES" ] && COMMIT_MSG="$COMMIT_MSG: $NOTES"
 
-# Create and push tag
-echo -e "${BLUE}🏷️  Creating tag v$NEW_VERSION...${NC}"
+echo -e "${BLUE}💾 Committing...${NC}"
+git add package.json README.md "$RETAIL_TOC" "$CLASSIC_TOC" "ReleaseNotes/v${NEW_VERSION}.md"
+git commit -m "$COMMIT_MSG"
+
+echo -e "${BLUE}🏷️  Tagging v$NEW_VERSION...${NC}"
 git tag "v$NEW_VERSION" -m "Release version $NEW_VERSION (Interface: $RETAIL_VERSION/$CLASSIC_VERSION)"
 
-echo -e "${BLUE}⬆️  Pushing to origin...${NC}"
+echo -e "${BLUE}⬆️  Pushing...${NC}"
 git push origin "$CURRENT_BRANCH"
 git push origin "v$NEW_VERSION"
 
 echo -e "${GREEN}✅ Release v$NEW_VERSION created successfully!${NC}"
 echo "======================================="
-echo -e "${BLUE}🔗 GitHub Actions will now:${NC}"
-echo "   • Create GitHub release"
-echo "   • Upload addon package"
-echo "   • Publish to CurseForge (if configured)"
-echo "   • Publish to Wago (if configured)"
-echo "   • Generate WowUp metadata"
-echo ""
-echo -e "${BLUE}🌐 Monitor progress at:${NC}"
-echo "   https://github.com/$(git config --get remote.origin.url | sed 's/.*github.com[:/]\([^.]*\).*/\1/')/actions"
-echo ""
+echo -e "${BLUE}🔗 GitHub Actions will now build & publish (GitHub release, CurseForge, Wago, WowUp).${NC}"
+REPO_PATH=$(git config --get remote.origin.url | sed 's/.*github.com[:/]\([^.]*\).*/\1/')
+echo -e "${BLUE}🌐 Monitor:${NC} https://github.com/${REPO_PATH}/actions"
 echo -e "${GREEN}🎉 Release process initiated!${NC}"
-
-# Clean up backup file
-if [ -f "README.md.backup" ]; then
-    rm README.md.backup
-fi

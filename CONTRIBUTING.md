@@ -109,6 +109,59 @@ Update region detection to handle edge cases
    - Screenshots/videos if UI changes
    - Testing details
 
+### Releasing (Maintainers)
+
+Releases are automated by `scripts/release.sh`. The script syncs all version
+metadata, scaffolds release notes, and creates/pushes the tag that triggers the
+GitHub Actions release pipeline (GitHub release, CurseForge, Wago, WowUp).
+
+> **Note:** The release workflow copies `ReleaseNotes/v<version>.md` to
+> `CHANGELOG.md`, so that file **must** exist for the release to succeed. The
+> script scaffolds it for you if it's missing.
+
+#### Usage
+
+```bash
+scripts/release.sh [VERSION] [options]
+```
+
+| Option | Description |
+| --- | --- |
+| `--retail <interface>` | New Retail interface number (e.g. `120005`), updates `PvPProfile.toc` |
+| `--classic <interface>` | New Classic interface number (e.g. `50504`), updates `PvPProfile_Classic.toc` |
+| `--notes <text>` | One-line summary used in the release notes and commit message |
+| `--type <type>` | Release type label (default: `Patch Release`) |
+| `-y`, `--yes` | Skip confirmation prompts (non-interactive) |
+| `--dry-run` | Make file changes but do **not** commit/tag/push |
+| `-h`, `--help` | Show usage |
+
+The TOC files are the source of truth for interface versions; the script derives
+`package.json` (`version`, `wow.interface`, `distribution.curseforge.gameVersions`)
+and the README badge from them.
+
+#### What it does
+
+1. Bumps interface versions in both TOC files (if `--retail`/`--classic` given)
+2. Syncs `package.json` and the README Game Version badge
+3. Bumps the `package.json` version
+4. Scaffolds `ReleaseNotes/v<version>.md` (skipped if it already exists, so you
+   can pre-write detailed notes)
+5. Commits, tags `v<version>`, and pushes — triggering the release pipeline
+
+#### Examples
+
+```bash
+# Compatibility bump for MoP Classic, non-interactive
+scripts/release.sh 1.0.13 --classic 50504 --notes "MoP Classic 5.5.4 compat" -y
+
+# Minor release with a new Retail interface; review changes before pushing
+scripts/release.sh 1.1.0 --retail 120100 --type "Minor Release" --dry-run
+```
+
+For detailed/hand-written release notes, create `ReleaseNotes/v<version>.md`
+before running (the script won't overwrite it), or use `--dry-run` to generate
+the scaffold, edit it, then re-run without `--dry-run`.
+
 ### Documentation
 
 Help improve documentation by:
