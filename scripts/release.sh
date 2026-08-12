@@ -35,6 +35,16 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Portable in-place sed (BSD/macOS sed requires -i '', GNU sed requires -i)
+sed_i() {
+    local expr=$1 file=$2
+    if sed --version >/dev/null 2>&1; then
+        sed -i "$expr" "$file"
+    else
+        sed -i '' "$expr" "$file"
+    fi
+}
+
 RETAIL_TOC="PvPProfile.toc"
 CLASSIC_TOC="PvPProfile_Classic.toc"
 REPO_URL="https://github.com/Kirom/PvP-Profile"
@@ -129,7 +139,7 @@ set_toc_interface() {
     if [ ! -f "$toc_file" ]; then
         echo -e "${RED}❌ $toc_file not found!${NC}"; exit 1
     fi
-    sed -i "s/^## Interface:.*/## Interface: ${new_interface}/" "$toc_file"
+    sed_i "s/^## Interface:.*/## Interface: ${new_interface}/" "$toc_file"
     echo -e "${GREEN}✅ ${toc_file}: Interface -> ${new_interface}${NC}"
 }
 
@@ -147,7 +157,7 @@ update_interface_versions_in_readme() {
 # Update a top-level "key": "value" string in package.json (simple, dependency-free)
 set_json_string() {
     local key=$1 value=$2 file="package.json"
-    sed -i "s/\"${key}\": \"[^\"]*\"/\"${key}\": \"${value}\"/" "$file"
+    sed_i "s/\"${key}\": \"[^\"]*\"/\"${key}\": \"${value}\"/" "$file"
 }
 
 create_release_notes() {
