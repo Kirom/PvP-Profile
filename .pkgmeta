@@ -20,4 +20,4 @@ ignore:
   - .pkgmeta
   - ReleaseNotes
 
-license-output: LICENSE 
+license-output: LICENSE

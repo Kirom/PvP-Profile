@@ -157,6 +157,103 @@ The addon works in multiple contexts as demonstrated in the screenshots above:
 - **No menu options appear**: Check that at least one provider is enabled in options
 - *Only EU, US, TW regions was tested, other regions need to be tested.*
 
+### "A file in the addon folder (e.g. LICENSE) can't be deleted / Explorer says 'item not found'"
+
+Older release packages could ship a file with a hidden trailing space in its name (e.g. `LICENSE ` instead of `LICENSE`). Windows shows this file normally in Explorer, but its Win32 APIs silently strip trailing spaces/dots from any path you type or click, so opening, renaming, or deleting it by name always resolves to a file that "doesn't exist" — hence errors like *"item not found"* / *"no longer located in this folder"*, and a folder that won't fully delete. This is a Windows filename quirk, not malware or a running process — it reproduces identically even in Safe Mode with nothing else running.
+
+**Fix — 3 steps:**
+
+**1. Save the script.** Open Notepad, paste the code block below, then **File → Save As** — set "Save as type" to **All Files**, name it `fix-pvpprofile.ps1`, and save it to your Desktop.
+
+```powershell
+# --- PvP Profile: Fix "can't delete LICENSE" ghost-file bug ---
+# A past packaging bug shipped a file with a trailing space in its name
+# (e.g. "LICENSE "). Windows shows it in Explorer but can never resolve
+# it by name to open/delete - hence "item not found" and a folder that
+# won't fully delete. This finds and removes it, wherever WoW is installed.
+# Prints progress as it goes, so it never looks stuck.
+
+$skipNames  = @('Windows', 'WindowsApps', '$Recycle.Bin', 'System Volume Information', 'AppData', 'node_modules', '.git', 'Package Cache')
+$maxDepth   = 8
+$fixedCount = 0
+
+function Fix-AddonFolder {
+    param($folder)
+    Write-Host "Found addon folder: $folder" -ForegroundColor Cyan
+    $ghosts = Get-ChildItem -LiteralPath $folder -Force -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -match ' $' -or $_.Name -match '\.$' }
+    if (-not $ghosts) {
+        Write-Host "  Nothing stuck here."
+        return
+    }
+    foreach ($file in $ghosts) {
+        Write-Host "  Removing stuck file: '$($file.Name)' ..." -NoNewline
+        try {
+            Remove-Item -LiteralPath "\\?\$($file.FullName)" -Force -ErrorAction Stop
+            Write-Host " Removed." -ForegroundColor Green
+            $script:fixedCount++
+        } catch {
+            Write-Host " Failed: $($_.Exception.Message)" -ForegroundColor Red
+        }
+    }
+}
+
+function Search-Folder {
+    param($path, $depth)
+    if ($depth -gt $maxDepth) { return }
+
+    $leaf = [System.IO.Path]::GetFileName($path.TrimEnd('\'))
+    if ($leaf -eq 'PvPProfile') {
+        if ($path.TrimEnd('\') -match '\\Interface\\AddOns\\PvPProfile$') {
+            Fix-AddonFolder $path
+        }
+        return
+    }
+
+    try {
+        $subdirs = [System.IO.Directory]::GetDirectories($path)
+    } catch {
+        return
+    }
+
+    foreach ($sub in $subdirs) {
+        $name = [System.IO.Path]::GetFileName($sub.TrimEnd('\'))
+        if ($skipNames -contains $name) { continue }
+        Search-Folder -path $sub -depth ($depth + 1)
+    }
+}
+
+Get-PSDrive -PSProvider FileSystem -ErrorAction SilentlyContinue | ForEach-Object {
+    Write-Host "Scanning drive $($_.Root) ..."
+    try {
+        Search-Folder -path $_.Root -depth 0
+    } catch {
+        Write-Host "  (skipped drive due to error: $($_.Exception.Message))" -ForegroundColor DarkYellow
+    }
+}
+
+if ($fixedCount -gt 0) {
+    Write-Host "`nDone - fixed $fixedCount stuck file(s). The addon folder should now delete normally." -ForegroundColor Green
+} else {
+    Write-Host "`nDone - no stuck files found automatically." -ForegroundColor Yellow
+    Write-Host 'Manual fallback: replace <PATH> with your AddOns\PvPProfile folder and run:'
+    Write-Host '  Get-ChildItem -LiteralPath "<PATH>" -Force | Where-Object { $_.Name -match " $|\.$" } | ForEach-Object { Remove-Item -LiteralPath "\\?\$($_.FullName)" -Force }'
+}
+
+Read-Host "`nPress Enter to close this window"
+```
+
+**2. Copy the script's exact path.** In File Explorer, find `fix-pvpprofile.ps1` on your Desktop, right-click it — if you don't see **Copy as path**, hold **Shift** while right-clicking — and click **Copy as path**. (This avoids any path-typing mistakes.)
+
+**3. Run it.** Press **Win + R**, type `powershell -ExecutionPolicy Bypass -NoExit -File ` (note the trailing space), then paste the copied path right after it (**Ctrl+V**), and press Enter. It should look like:
+```
+powershell -ExecutionPolicy Bypass -NoExit -File "C:\Users\YourName\Desktop\fix-pvpprofile.ps1"
+```
+
+A PowerShell window opens and prints its progress as it scans each drive (this can take a minute or two — it skips huge irrelevant folders like `Windows` and `AppData` to stay fast, but still has to walk the rest). Thanks to `-ExecutionPolicy Bypass` and `-NoExit`, it won't be blocked by script-security settings and won't close before you can read the result. When it's done, it reports what it found/fixed and waits for you to press Enter before closing.
+
+This only touches files inside a folder path ending in `\Interface\AddOns\PvPProfile` whose name has a trailing space or dot (the ghost-file signature) — nothing else on your system is scanned or modified. Once it runs, the addon folder will delete normally through Explorer or your addon manager.
+
 ## Technical Details
 
 ### Region Detection
