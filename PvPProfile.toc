@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120105
 ## Title: PvP Profile
 ## Notes: Addon that adds profile links to multiple PvP websites through player dropdown menus in LFG and other contexts.
 ## Author: Kirom
