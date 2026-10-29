@@ -10,6 +10,19 @@ function ns.utils.DebugPrint(...)
     end
 end
 
+-- Secret values only exist on Retail 12.0+; elsewhere nothing is secret
+local issecretvalue = issecretvalue or function() return false end
+
+-- Check if any of the given values is a secret value
+function ns.utils.IsSecret(...)
+    for i = 1, select("#", ...) do
+        if issecretvalue((select(i, ...))) then
+            return true
+        end
+    end
+    return false
+end
+
 -- Parse name and realm from full name
 function ns.utils.GetNameRealm(fullName)
     ns.utils.DebugPrint("GetNameRealm: fullName =", fullName)

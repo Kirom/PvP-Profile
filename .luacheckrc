@@ -55,6 +55,7 @@ read_globals = {
     "C_FriendList",
     "C_Timer",
     "UnitExists",
+    "issecretvalue",
     "GetCurrentRegion",
     "IsControlKeyDown",
     "WOW_PROJECT_ID",
